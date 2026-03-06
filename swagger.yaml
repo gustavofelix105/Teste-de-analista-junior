@@ -1,0 +1,147 @@
+openapi: 3.0.0
+info:
+  title: Order Management API
+  description: API simples para gerenciar os pedidos em banco de dados SQLite
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Servidor Local
+paths:
+  /order:
+    post:
+      summary: Criar um novo pedido
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderInput'
+      responses:
+        '201':
+          description: Pedido criado com sucesso
+        '400':
+          description: Erro de validação
+        '409':
+          description: Pedido já existe
+  /order/list:
+    get:
+      summary: Listar todos os pedidos
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderOutput'
+  /order/{orderId}:
+    get:
+      summary: Obter os dados do pedido pelo número
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+          description: O número do pedido (ex. v10089016vdb)
+      responses:
+        '200':
+          description: Pedido encontrado e retornado
+        '404':
+          description: Pedido não encontrado
+    put:
+      summary: Atualizar pedido pelo número
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderInput'
+      responses:
+        '200':
+          description: Pedido atualizado
+        '404':
+          description: Pedido não encontrado
+    delete:
+      summary: Deletar pedido pelo número
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Pedido removido com sucesso
+        '404':
+          description: Pedido não encontrado
+components:
+  schemas:
+    OrderInput:
+      type: object
+      required:
+        - numeroPedido
+        - valorTotal
+        - dataCriacao
+        - items
+      properties:
+        numeroPedido:
+          type: string
+          example: v10089015vdb-01
+        valorTotal:
+          type: number
+          example: 10000
+        dataCriacao:
+          type: string
+          example: "2023-07-19T12:24:11.5299601+00:00"
+        items:
+          type: array
+          items:
+            type: object
+            required:
+              - idItem
+              - quantidadeItem
+              - valorItem
+            properties:
+              idItem:
+                type: string
+                example: "2434"
+              quantidadeItem:
+                type: integer
+                example: 1
+              valorItem:
+                type: number
+                example: 1000
+    OrderOutput:
+      type: object
+      properties:
+        orderId:
+          type: string
+          example: v10089016vdb
+        value:
+          type: number
+          example: 10000
+        creationDate:
+          type: string
+          example: "2023-07-19T12:24:11.529Z"
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              productId:
+                type: integer
+                example: 2434
+              quantity:
+                type: integer
+                example: 1
+              price:
+                type: number
+                example: 1000
